@@ -1,88 +1,60 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <ncurses.h>
-#include <unistd.h>
 
-#define MAX_PLAYERS 20
+#define MAX_PLAYERS 10
+#define ESC 27
 
 int main() {
-    initscr();
-    cbreak();
-    noecho();
-    keypad(stdscr, TRUE);
+    initscr(); // Инициализация экрана ncurses
+    noecho(); // Не выводить вводимые символы
+    curs_set(FALSE); // Скрыть курсор
 
     int rows, cols;
-    getmaxyx(stdscr, rows, cols);
+    getmaxyx(stdscr, rows, cols); // Получение размеров окна
 
-    char players[MAX_PLAYERS] = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'};
-    int num_players = 10;
-    int k = 2; // Номер игрока для выхода
-    int current_player = 0;
-    int rounds = 0;
+    int numPlayers;
+    int playerX[MAX_PLAYERS], playerY[MAX_PLAYERS];
+    int currentTurn = 0, turns = 0, k;
+    int ch;
 
-    while (1) {
-        clear();
-        mvprintw(rows / 2, cols / 2, "Round: %d", rounds);
-        mvprintw(rows / 2 + 1, cols / 2, "Press 'S' to continue or 'C' to reset");
+    clear();
+    mvprintw(0, 0, "Введите количество игроков (не более %d): ", MAX_PLAYERS);
+    refresh();
+    scanw("%d", &numPlayers);
 
-        int row_offset = rows / 4;
-        int col_offset = cols / 4;
-        int row = row_offset;
-        int col = col_offset;
+    if (numPlayers <= 0 || numPlayers > MAX_PLAYERS) {
+        endwin();
+        printf("Неверное количество игроков.\n");
+        return 1;
+    }
 
-        int row_change[] = {0, 1, 0, -1}; // Изменение координаты row для формирования контура
-        int col_change[] = {1, 0, -1, 0}; // Изменение координаты col для формирования контура
-        int direction = 0;
+    for (int i = 0; i < numPlayers; ++i) {
+        playerX[i] = i % (cols - 2) + 1;
+        playerY[i] = i / (cols - 2) + 1;
+    }
 
-        for (int i = 0; i < num_players; ++i) {
-            if (i == current_player) {
-                attron(A_REVERSE);
-            }
-            mvaddch(row, col, players[i]);
-            attroff(A_REVERSE);
-            refresh();
-            usleep(500000); // Пауза 0.5 секунды
+    mvprintw(rows - 1, 0, "Нажмите 'C' для начальной позиции, 'S' для продолжения, 'Esc' для выхода");
 
-            int next_row = row + row_change[direction];
-            int next_col = col + col_change[direction];
-
-            if (next_row >= row_offset && next_row < rows - row_offset &&
-                next_col >= col_offset && next_col < cols - col_offset &&
-                mvinch(next_row, next_col) == ' ') {
-                row = next_row;
-                col = next_col;
-            } else {
-                direction = (direction + 1) % 4;
-                row += row_change[direction];
-                col += col_change[direction];
-            }
+    while ((ch = getch()) != ESC) {
+        switch (ch) {
+            case 'C':
+            case 'c':
+                turns = 0;
+                currentTurn = 0;
+                break;
+            case 'S':
+            case 's':
+                ++turns;
+                ++currentTurn;
+                mvprintw(rows - 2, 0, "Текущий ход: %d", turns);
+                refresh();
+                break;
         }
 
-        char ch = getch();
-
-        if (ch == 'S' || ch == 's') {
-            if (num_players == 1) {
-                mvprintw(rows / 2 + 2, cols / 2, "Winner is player %c", players[current_player]);
-                refresh();
-                usleep(2000000);
-                break;
-            }
-            current_player = (current_player + k - 1) % num_players;
-            for (int i = current_player; i < num_players - 1; ++i) {
-                players[i] = players[i + 1];
-            }
-            num_players--;
-            rounds++;
-        } else if (ch == 'C' || ch == 'c') {
-            num_players = 10;
-            k = 2;
-            current_player = 0;
-            rounds = 0;
-            for (int i = 0; i < num_players; ++i) {
-                players[i] = 'A' + i;
-            }
-        } else if (ch == 27) { // Escape key
-            break;
+        if (turns > 0 && currentTurn % numPlayers == 0) {
+            mvprintw(playerY[currentTurn % numPlayers], playerX[currentTurn % numPlayers], " ");
+            refresh();
         }
     }
 
