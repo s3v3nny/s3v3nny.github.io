@@ -4,20 +4,20 @@
 #define MAX_ROWS 10
 #define MAX_COLS 10
 
-void drawPlayers(int row, int col, int players[MAX_ROWS][MAX_COLS], int count) {
+void drawPlayers(int row, int col, char players[MAX_ROWS][MAX_COLS], int count) {
     clear();
     mvprintw(0, 0, "Нажмите 'S' для продолжения, 'C' для новой игры, 'Escape' для выхода");
     mvprintw(1, 0, "Число выполненных поворотов: %d", count);
 
     for (int i = 0; i < MAX_ROWS; ++i) {
         for (int j = 0; j < MAX_COLS; ++j) {
-            if (players[i][j] > 0) {
+            if (players[i][j] != ' ') {
                 if (i == row && j == col) {
                     attron(A_REVERSE);
-                    printw("И");
+                    printw("%c", players[i][j]);
                     attroff(A_REVERSE);
                 } else {
-                    printw("O");
+                    printw("%c", players[i][j]);
                 }
             } else {
                 printw(" ");
@@ -35,28 +35,32 @@ int main() {
     keypad(stdscr, TRUE);
     noecho();
 
-    int players[MAX_ROWS][MAX_COLS] = {0};
+    char players[MAX_ROWS][MAX_COLS] = {' '};
     int count = 0, row = 0, col = 0;
-    int numRows, numCols;
+    int numRows, numCols, K;
+    int numPlayers = 0;
 
-    mvprintw(2, 0, "Введите количество строк и столбцов для прямоугольника (не более %d на %d): ", MAX_ROWS, MAX_COLS);
+    mvprintw(2, 0, "Width and height of rectangle (between %d and %d): ", MAX_ROWS, MAX_COLS);
     scanw("%d %d", &numRows, &numCols);
 
-    if (numRows < 1 || numRows > MAX_ROWS || numCols < 1 || numCols > MAX_COLS) {
+    mvprintw(3, 0, "Value of K: ");
+    scanw("%d", &K);
+
+    if (numRows < 1 || numRows > MAX_ROWS || numCols < 1 || numCols > MAX_COLS || K < 1) {
         endwin();
-        printf("Некорректные размеры прямоугольника.\n");
+        printf("Invalid input.\n");
         return 1;
     }
 
-    for (int i = 0; i < numCols; ++i) {
-        players[0][i] = i + 1;
-        players[numRows - 1][i] = i + numCols + 1;
+    for (int i = 0; i < numRows; ++i) {
+        for (int j = 0; j < numCols; ++j) {
+            if ((i == 0 || i == numRows - 1 || j == 0 || j == numCols - 1) && numPlayers < 26) {
+                players[i][j] = 'A' + numPlayers++;
+            }
+        }
     }
 
-    for (int i = 1; i < numRows - 1; ++i) {
-        players[i][0] = 2 * numCols + numRows - i;
-        players[i][numCols - 1] = numCols + i;
-    }
+    int playerCounter = 0;
 
     while (1) {
         drawPlayers(row, col, players, count);
@@ -73,10 +77,30 @@ int main() {
             } else if (row > 0 && col == 0) {
                 row--;
             }
+
+            if (players[row][col] != ' ') {
+                if (++playerCounter % K == 0) {
+                    players[row][col] = ' ';
+                }
+            }
         } else if (ch == 'C' || ch == 'c') {
             count = 0;
             row = 0;
             col = 0;
+            numPlayers = 0;
+            playerCounter = 0;
+            for (int i = 0; i < MAX_ROWS; ++i) {
+                for (int j = 0; j < MAX_COLS; ++j) {
+                    players[i][j] = ' ';
+                }
+            }
+            for (int i = 0; i < numRows; ++i) {
+                for (int j = 0; j < numCols; ++j) {
+                    if ((i == 0 || i == numRows - 1 || j == 0 || j == numCols - 1) && numPlayers < 26) {
+                        players[i][j] = 'A' + numPlayers++;
+                    }
+                }
+            }
         } else if (ch == 27) { // Escape key
             break;
         }
