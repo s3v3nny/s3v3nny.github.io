@@ -6,8 +6,8 @@
 
 void drawPlayers(int row, int col, char players[MAX_ROWS][MAX_COLS], int count) {
     clear();
-    mvprintw(0, 0, "Нажмите 'S' для продолжения, 'C' для новой игры, 'Escape' для выхода");
-    mvprintw(1, 0, "Число выполненных поворотов: %d", count);
+    mvprintw(0, 0, "S - move, C - new game, Escape - exit");
+    mvprintw(1, 0, "Rotation count: %d", count);
 
     for (int i = 0; i < MAX_ROWS; ++i) {
         for (int j = 0; j < MAX_COLS; ++j) {
