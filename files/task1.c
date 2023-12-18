@@ -1,4 +1,4 @@
-﻿#include <stdio.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <ncurses.h>
 #include <unistd.h>
@@ -14,9 +14,9 @@ int main() {
     int rows, cols;
     getmaxyx(stdscr, rows, cols);
 
-    char players[MAX_PLAYERS] = {'A', 'B', 'C', 'D', 'E'};
+    char players[MAX_PLAYERS] = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'};
     int num_players = 5;
-    int k = 2; // Номер игрока для выхода
+    int k = 4; // Number k
     int current_player = 0;
     int rounds = 0;
 
@@ -34,6 +34,7 @@ int main() {
         }
 
         refresh();
+        usleep(1000000);
 
         char ch = getch();
 
