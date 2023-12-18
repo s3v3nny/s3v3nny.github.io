@@ -25,13 +25,16 @@ int main() {
         mvprintw(rows / 2, cols / 2, "Round: %d", rounds);
         mvprintw(rows / 2 + 1, cols / 2, "Press 'S' to continue or 'C' to reset");
 
-        int rows_offset = 4;
-        int cols_offset = 4;
+        int row_offset = rows / 4;
+        int col_offset = cols / 4;
+        int row = row_offset;
+        int col = col_offset;
+
+        int row_change[] = {0, 1, 0, -1}; // Изменение координаты row для формирования контура
+        int col_change[] = {1, 0, -1, 0}; // Изменение координаты col для формирования контура
+        int direction = 0;
 
         for (int i = 0; i < num_players; ++i) {
-            int row = rows_offset + (i / 5) * 4;
-            int col = cols_offset + (i % 5) * 8;
-
             if (i == current_player) {
                 attron(A_REVERSE);
             }
@@ -39,6 +42,20 @@ int main() {
             attroff(A_REVERSE);
             refresh();
             usleep(500000); // Пауза 0.5 секунды
+
+            int next_row = row + row_change[direction];
+            int next_col = col + col_change[direction];
+
+            if (next_row >= row_offset && next_row < rows - row_offset &&
+                next_col >= col_offset && next_col < cols - col_offset &&
+                mvinch(next_row, next_col) == ' ') {
+                row = next_row;
+                col = next_col;
+            } else {
+                direction = (direction + 1) % 4;
+                row += row_change[direction];
+                col += col_change[direction];
+            }
         }
 
         char ch = getch();
