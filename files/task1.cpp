@@ -35,6 +35,7 @@ int main() {
     }
 
     mvprintw(rows - 1, 0, "Нажмите 'C' для начальной позиции, 'S' для продолжения, 'Esc' для выхода");
+    refresh();
 
     while ((ch = getch()) != ESC) {
         switch (ch) {
@@ -42,6 +43,12 @@ int main() {
             case 'c':
                 turns = 0;
                 currentTurn = 0;
+                clear();
+                mvprintw(rows - 1, 0, "Нажмите 'C' для начальной позиции, 'S' для продолжения, 'Esc' для выхода");
+                for (int i = 0; i < numPlayers; ++i) {
+                    playerX[i] = i % (cols - 2) + 1;
+                    playerY[i] = i / (cols - 2) + 1;
+                }
                 break;
             case 'S':
             case 's':
