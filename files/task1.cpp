@@ -1,6 +1,3 @@
-Конечно, вот обновленный код с 10 игроками:
-
-```c
 #include <stdio.h>
 #include <stdlib.h>
 #include <ncurses.h>
@@ -19,7 +16,7 @@ int main() {
 
     char players[MAX_PLAYERS] = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'};
     int num_players = 10;
-    int k = 4; // Номер игрока для выхода
+    int k = 2; // Номер игрока для выхода
     int current_player = 0;
     int rounds = 0;
 
@@ -28,14 +25,58 @@ int main() {
         mvprintw(rows / 2, cols / 2, "Round: %d", rounds);
         mvprintw(rows / 2 + 1, cols / 2, "Press 'S' to continue or 'C' to reset");
 
+        int row_start = rows / 4;
+        int col_start = cols / 4;
+
+        int row = row_start;
+        int col = col_start;
+        int direction = 0; // 0 - right, 1 - down, 2 - left, 3 - up
+
         for (int i = 0; i < num_players; ++i) {
             if (i == current_player) {
                 attron(A_REVERSE);
             }
-            mvaddch(rows / 4, (cols / (num_players + 1)) * (i + 1), players[i]);
+            mvaddch(row, col, players[i]);
             attroff(A_REVERSE);
             refresh();
             usleep(500000); // Пауза 0.5 секунды
+
+            switch (direction) {
+                case 0:
+                    col += 4;
+                    if (col >= cols - col_start) {
+                        direction = 1;
+                        col = cols - col_start - 1;
+                        row += 2;
+                    }
+                    break;
+                case 1:
+                    row += 2;
+                    if (row >= rows - row_start) {
+                        direction = 2;
+                        row = rows - row_start - 1;
+                        col -= 4;
+                    }
+                    break;
+                case 2:
+                    col -= 4;
+                    if (col < col_start) {
+                        direction = 3;
+                        col = col_start;
+                        row -= 2;
+                    }
+                    break;
+                case 3:
+                    row -= 2;
+                    if (row < row_start) {
+                        direction = 0;
+                        row = row_start;
+                        col += 4;
+                    }
+                    break;
+                default:
+                    break;
+            }
         }
 
         char ch = getch();
@@ -55,7 +96,7 @@ int main() {
             rounds++;
         } else if (ch == 'C' || ch == 'c') {
             num_players = 10;
-            k = 4;
+            k = 2;
             current_player = 0;
             rounds = 0;
             for (int i = 0; i < num_players; ++i) {
@@ -69,6 +110,3 @@ int main() {
     endwin();
     return 0;
 }
-```
-
-Теперь программа работает с 10 игроками и останавливается около каждого из них в процессе считалки.
