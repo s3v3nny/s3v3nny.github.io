@@ -1,9 +1,12 @@
+Конечно, вот обновленный код с 10 игроками:
+
+```c
 #include <stdio.h>
 #include <stdlib.h>
 #include <ncurses.h>
 #include <unistd.h>
 
-#define MAX_PLAYERS 10
+#define MAX_PLAYERS 20
 
 int main() {
     initscr();
@@ -15,8 +18,8 @@ int main() {
     getmaxyx(stdscr, rows, cols);
 
     char players[MAX_PLAYERS] = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'};
-    int num_players = 5;
-    int k = 4; // Number k
+    int num_players = 10;
+    int k = 4; // Номер игрока для выхода
     int current_player = 0;
     int rounds = 0;
 
@@ -31,10 +34,9 @@ int main() {
             }
             mvaddch(rows / 4, (cols / (num_players + 1)) * (i + 1), players[i]);
             attroff(A_REVERSE);
+            refresh();
+            usleep(500000); // Пауза 0.5 секунды
         }
-
-        refresh();
-        usleep(1000000);
 
         char ch = getch();
 
@@ -52,8 +54,8 @@ int main() {
             num_players--;
             rounds++;
         } else if (ch == 'C' || ch == 'c') {
-            num_players = 5;
-            k = 2;
+            num_players = 10;
+            k = 4;
             current_player = 0;
             rounds = 0;
             for (int i = 0; i < num_players; ++i) {
@@ -67,3 +69,6 @@ int main() {
     endwin();
     return 0;
 }
+```
+
+Теперь программа работает с 10 игроками и останавливается около каждого из них в процессе считалки.
